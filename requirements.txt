@@ -1,0 +1,13 @@
+fastapi
+gunicorn
+uvicorn[standard]
+celery[redis]
+huey
+taskiq
+taskiq-redis
+taskiq-aio-pika
+taskiq-fastapi
+pytest
+pytest-benchmark
+locust
+prometheus-client

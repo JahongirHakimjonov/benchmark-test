@@ -1,0 +1,52 @@
+services:
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+
+  fastapi:
+    build: .
+    container_name: fastapi-app
+    depends_on:
+      - redis
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+  huey_worker:
+    build: .
+    container_name: huey-worker
+    depends_on:
+      - redis
+    command: [ "huey_consumer.py", "app.huey_tasks.huey" ]
+
+
+  celery_worker:
+    build: .
+    container_name: celery-worker
+    depends_on:
+      - redis
+    entrypoint: ["celery", "-A", "app.celery_tasks.app", "worker", "--loglevel=INFO"]
+
+
+  taskiq_worker:
+    build: .
+    container_name: taskiq-worker
+    depends_on:
+      - redis
+    command: ["taskiq", "worker", "app.taskiq_tasks:broker", "--tasks", "app.taskiq_tasks"]
+
+
+  benchmark:
+    build: .
+    container_name: benchmark-runner
+    depends_on:
+      - fastapi
+    entrypoint: ["pytest", "benchmark/test_tasks.py", "--benchmark-only", "--benchmark-save=results"]
+    volumes:
+      - ./benchmarks:/app/.benchmarks
