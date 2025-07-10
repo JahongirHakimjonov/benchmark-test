@@ -1,3 +1,5 @@
+import asyncio
+
 from taskiq_redis import RedisAsyncResultBackend, RedisStreamBroker
 
 redis_url = "redis://redis:6379"
@@ -15,3 +17,4 @@ broker = RedisStreamBroker(
 async def run_heavy_taskiq_task():
     with open("/tmp/taskiq_test.txt", "wb") as f:
         f.write(b"x" * 100_000_000)
+    await asyncio.sleep(2)
