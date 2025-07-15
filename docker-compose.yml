@@ -34,6 +34,28 @@ services:
     entrypoint: ["celery", "-A", "app.celery_tasks.app", "worker", "--loglevel=INFO"]
 
 
+  celery_worker_prefork:
+    build:
+      context: .
+    container_name: celery-worker-prefork
+    depends_on:
+      - redis
+    entrypoint: [ "celery", "-A", "app.celery_tasks.app", "worker", "--loglevel=INFO", "--pool=prefork" ]
+    environment:
+      - C_FORCE_ROOT=true
+
+
+  celery_worker_gevent:
+    build:
+      context: .
+    container_name: celery-worker-gevent
+    depends_on:
+      - redis
+    entrypoint: [ "celery", "-A", "app.celery_tasks.app", "worker", "--loglevel=INFO", "--pool=gevent", "--concurrency=1000" ]
+    environment:
+      - C_FORCE_ROOT=true
+
+
   taskiq_worker:
     build: .
     container_name: taskiq-worker
