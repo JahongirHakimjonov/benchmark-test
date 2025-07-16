@@ -1,7 +1,8 @@
 fastapi
 gunicorn
 uvicorn[standard]
-celery[redis]
+celery[eventlet,gevent,redis]
+eventlet
 huey
 taskiq
 taskiq-redis
